@@ -47,6 +47,9 @@ set(VERSION_API    0)
 set(VERSION_ABI 0)
 set(VERSION_PATCH git)
 
+set(PYTHON_MIN_VERSION "2.7.6")
+set(PYTHON3_MIN_VERSION "3.6.5")
+
 cmake_policy(SET CMP0011 NEW)
 
 # Enable generation of compile_commands.json for code completion engines
@@ -133,13 +136,21 @@ endif(APPLE)
 # Find gnuradio build dependencies
 ########################################################################
 find_package(Doxygen)
-find_package(Python3 COMPONENTS Interpreter Development NumPy)
-if(NOT Python3_FOUND)
-    find_package(Python2 COMPONENTS Interpreter Development NumPy)
-	if(NOT Python2_FOUND)
-	    message(WARNING "Unable to find Python 2 nor 3")
-	ENDIF(NOT Python2_FOUND)
-ENDIF(NOT Python3_FOUND)
+if (PYTHON_EXECUTABLE)
+    message(STATUS "User set python executable ${PYTHON_EXECUTABLE}")
+    find_package(PythonInterp ${PYTHON_MIN_VERSION} COMPONENTS Interpreter Development NumPy)
+else (PYTHON_EXECUTABLE)
+    message(STATUS "PYTHON_EXECUTABLE not set - using default python3")
+    message(STATUS "Use -DPYTHON_EXECUTABLE=/path/to/python2 to build for python2.")
+    find_package(PythonInterp ${PYTHON3_MIN_VERSION} COMPONENTS Interpreter Development NumPy)
+endif (PYTHON_EXECUTABLE)
+#find_package(Python3 COMPONENTS Interpreter Development NumPy)
+#if(NOT Python3_FOUND)
+#    find_package(Python2 COMPONENTS Interpreter Development NumPy)
+#	if(NOT Python2_FOUND)
+#	    message(WARNING "Unable to find Python 2 nor 3")
+#	ENDIF(NOT Python2_FOUND)
+#ENDIF(NOT Python3_FOUND)
 #find_package(PythonLibs 3)
 #find_package(Volk)
 #find_package(SWIG)
@@ -190,15 +201,15 @@ endif(DOXYGEN_FOUND)
 #set(GR_BOKEHGUI_SWIG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/swig CACHE INTERNAL "" FORCE)
 
 
-if(Python3_FOUND)
+if(${PYTHON_VERSION_MAJOR} VERSION_EQUAL 3)
   include_directories(
     ${Python3_NumPy_INCLUDE_DIRS}
     )
-elseif(Python2_FOUND)
+else()
   include_directories(
     ${Python2_NumPy_INCLUDE_DIRS}
     )
-ENDIF(Python3_FOUND)
+ENDIF()
 
 
 ########################################################################
