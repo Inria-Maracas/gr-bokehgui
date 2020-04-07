@@ -133,6 +133,13 @@ endif(APPLE)
 # Find gnuradio build dependencies
 ########################################################################
 find_package(Doxygen)
+find_package(Python3 COMPONENTS Interpreter Development NumPy)
+if(NOT Python3_FOUND)
+    find_package(Python2 COMPONENTS Interpreter Development NumPy)
+	if(NOT Python2_FOUND)
+	    message(WARNING "Unable to find Python 2 nor 3")
+	ENDIF(NOT Python2_FOUND)
+ENDIF(NOT Python3_FOUND)
 #find_package(PythonLibs 3)
 #find_package(Volk)
 #find_package(SWIG)
@@ -181,6 +188,18 @@ endif(DOXYGEN_FOUND)
 # Set component parameters
 #set(GR_BOKEHGUI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE INTERNAL "" FORCE)
 #set(GR_BOKEHGUI_SWIG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/swig CACHE INTERNAL "" FORCE)
+
+
+if(Python3_FOUND)
+  include_directories(
+    ${Python3_NumPy_INCLUDE_DIRS}
+    )
+elseif(Python2_FOUND)
+  include_directories(
+    ${Python2_NumPy_INCLUDE_DIRS}
+    )
+ENDIF(Python3_FOUND)
+
 
 ########################################################################
 # Create uninstall target
